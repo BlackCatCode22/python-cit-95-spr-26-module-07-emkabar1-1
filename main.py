@@ -1,6 +1,7 @@
-from animal import Animal
 import random
 from datetime import date
+
+from animal import Animal
 
 CURRENT_DATE = date.today()
 
@@ -50,7 +51,7 @@ with open('animalNames.txt', 'r') as f:
             # Assign the list to current species key
             animal_names[current_species] = names_list
 
-arriving_animals = []
+zoo_population = {k + ' Habitat': [] for k in animal_names.keys()}
 
 # Initialize counters for each species
 species_counter = {k: 0 for k in animal_names.keys()}
@@ -105,7 +106,24 @@ with open('arrivingAnimals.txt', 'r') as f:
         # Create animal object
         new_animal = Animal(species_val, assigned_name, age_val, sex, color, weight, origin, b_day, unique_id)
 
-        arriving_animals.append(new_animal)
+        # Add the animal to the correct habitat list
+        habitat_key = f'{species_val} Habitat'
+        zoo_population[habitat_key].append(new_animal)
 
-for animal in arriving_animals:
-    print(animal.get_all_values())
+for habitat in zoo_population:
+    print(habitat)
+    for animal in zoo_population[habitat]:
+        print(animal.get_all_values())
+
+# Write output to file
+with open('zooPopulation.txt', 'w') as f:
+    for habitat_name, animal_list in zoo_population.items():
+        f.write(f'{habitat_name}:\n')
+
+        for a in animal_list:
+            line = (f'{a.animal_id}; {a.name}; birth date: {a.birth_date}; '
+                    f'{a.color}; {a.sex}; {a.weight} pounds; from {a.origin}; '
+                    f'arrived {CURRENT_DATE}\n')
+            f.write(line)
+
+        f.write('\n')  # Add a space between habitats
