@@ -1,4 +1,31 @@
 from animal import Animal
+import random
+from datetime import date
+
+CURRENT_DATE = date.today()
+
+
+def gen_birth_date(age, season):
+    birth_year = CURRENT_DATE.year - int(age)
+
+    # Define month/day based on season
+    dates = {
+        'spring': '03-21',
+        'summer': '06-21',
+        'fall': '09-21',
+        'winter': '12-21'
+    }
+    # Assign date, fallback to Jan 01 if season is "unknown"
+    md = dates.get(season, '01-01')
+    return f'{birth_year}-{md}'
+
+
+def gen_unique_id(species, counts):
+    # Get first two letters of species and add id number
+    prefix = species[:2]
+    counts[species] = counts.get(species, 0) + 1
+    return f'{prefix}{counts[species]:02d}'
+
 
 animal_names = {}
 current_species = None
@@ -25,6 +52,9 @@ with open('animalNames.txt', 'r') as f:
 
 arriving_animals = []
 
+# Initialize counters for each species
+species_counter = {k: 0 for k in animal_names.keys()}
+
 with open('arrivingAnimals.txt', 'r') as f:
     for line in f:
         line = line.strip()
@@ -42,12 +72,12 @@ with open('arrivingAnimals.txt', 'r') as f:
 
         # First Part (Age, Sex, Species)
         first_part = parts[0].split()
-        age = first_part[0]
+        age_val = first_part[0]
         sex = first_part[3]
-        species = first_part[4].capitalize()
+        species_val = first_part[4].capitalize()
 
         # Season (Keeps "unknown" or "spring"/"fall"/"winter")
-        season = parts[1].replace('born in ', '')
+        season_val = parts[1].replace('born in ', '')
 
         # Color (Handles colors containing "and")
         color = parts[2].replace(' color', '')
@@ -58,8 +88,22 @@ with open('arrivingAnimals.txt', 'r') as f:
         # Remove "from " only from the very beginning of the origin string
         origin = ', '.join(parts[4:]).replace('from ', '')
 
+        # Get the list of names for this species
+        available_names = animal_names.get(species_val, [])
+
+        if available_names:
+            # Assigns a random name from the list
+            assigned_name = available_names.pop(random.randrange(len(available_names)))
+        else:
+            assigned_name = 'Unknown'
+
+        b_day = gen_birth_date(age_val, season_val)
+
+        # Use species counter for id number
+        unique_id = gen_unique_id(species_val, species_counter)
+
         # Create animal object
-        new_animal = Animal(species, age, sex, color, weight, origin)
+        new_animal = Animal(species_val, assigned_name, age_val, sex, color, weight, origin, b_day, unique_id)
 
         arriving_animals.append(new_animal)
 
