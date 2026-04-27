@@ -10,5 +10,11 @@ class Animal:
         self.birth_date = birth_date
         self.animal_id = unique_id
 
+    def __str__(self):
+        return f"[{self.animal_id}] {self.name} the {self.species} from {self.origin}"
+
     def get_all_values(self):
         return vars(self)
+
+    def say_catchphrase(self):
+        return None

@@ -2,6 +2,10 @@ import random
 from datetime import date
 
 from animal import Animal
+from hyena import Hyena
+from lion import Lion
+from bear import Bear
+from tiger import Tiger
 
 CURRENT_DATE = date.today()
 
@@ -51,7 +55,7 @@ with open('animalNames.txt', 'r') as f:
             # Assign the list to current species key
             animal_names[current_species] = names_list
 
-zoo_population = {k + ' Habitat': [] for k in animal_names.keys()}
+zoo_population = {}
 
 # Initialize counters for each species
 species_counter = {k: 0 for k in animal_names.keys()}
@@ -61,7 +65,7 @@ with open('arrivingAnimals.txt', 'r') as f:
         line = line.strip()
 
         # Split the line into a list by the comma
-        parts = [p.strip() for p in line.split(',')]
+        parts = [p.strip() for p in line.split(', ')]
 
         # Extract specific indices based on the source structure
         # Index 0: "4 year old female hyena"
@@ -83,7 +87,7 @@ with open('arrivingAnimals.txt', 'r') as f:
         # Color (Handles colors containing "and")
         color = parts[2].replace(' color', '')
 
-        weight = parts[3].split()[0]
+        weight = parts[3].replace(' pounds', '').replace(',', '')
 
         # Origin (Joins everything from index 4 to the end)
         # Remove "from " only from the very beginning of the origin string
@@ -104,16 +108,29 @@ with open('arrivingAnimals.txt', 'r') as f:
         unique_id = gen_unique_id(species_val, species_counter)
 
         # Create animal object
-        new_animal = Animal(species_val, assigned_name, age_val, sex, color, weight, origin, b_day, unique_id)
+        if species_val == 'Hyena':
+            new_animal = Hyena(species_val, assigned_name, age_val, sex, color, weight, origin, b_day, unique_id)
+        elif species_val == 'Lion':
+            new_animal = Lion(species_val, assigned_name, age_val, sex, color, weight, origin, b_day, unique_id)
+        elif species_val == 'Tiger':
+            new_animal = Tiger(species_val, assigned_name, age_val, sex, color, weight, origin, b_day, unique_id)
+        elif species_val == 'Bear':
+            new_animal = Bear(species_val, assigned_name, age_val, sex, color, weight, origin, b_day, unique_id)
+        else:
+            new_animal = Animal(species_val, assigned_name, age_val, sex, color, weight, origin, b_day, unique_id)
 
         # Add the animal to the correct habitat list
         habitat_key = f'{species_val} Habitat'
-        zoo_population[habitat_key].append(new_animal)
+        zoo_population.setdefault(habitat_key, []).append(new_animal)
 
 for habitat in zoo_population:
     print(habitat)
     for animal in zoo_population[habitat]:
-        print(animal.get_all_values())
+        print(animal)
+        # print(animal.get_all_values())
+        phrase = animal.say_catchphrase()
+        if phrase:
+            print(f'{animal.name} says: "{phrase}"')
 
 # Write output to file
 with open('zooPopulation.txt', 'w') as f:
